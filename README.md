@@ -18,3 +18,8 @@ In the current folder:
     virtualenv venv
     venv\Scripts\pip.exe install -r requirements.txt
     python src\toyota.py
+
+# Licence
+
+MIT except for odb2scantool folder that is GPL (snapshotted from
+https://github.com/AustinMurphy/OBD2-Scantool 15/12/2014).
