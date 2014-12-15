@@ -7,7 +7,9 @@ Some sandboxing code for OBD logging and display for my little Toyota :)
 Um, this is a sandbox. Nothing here is stable, but if there's something you
 like, have fun with it.
 
-## Windows setup
+# Setup
+
+## Windows
 
 This is just for those who want to look at it on a Windows box. *nix
 instructions to follow.
