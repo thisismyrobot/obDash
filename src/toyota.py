@@ -13,6 +13,11 @@ def index():
     """ The main page
     """
     return flask.render_template('index.html')
+
+
+@app.route("/time")
+def settime():
+    """ Set the current time using a GET request.
     """
 
 
