@@ -1,5 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-Hello World!
+
+<h3>Choose an app</h3>
+
+<div class="apps">
+    {% for app in apps %}
+        <a href="/app/{{ app }}">{{ app }}</a>
+    {% endfor %}
+</div>
+
 {% endblock %}

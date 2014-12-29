@@ -1,5 +1,7 @@
 import flask.ext.socketio
 import flask
+import glob
+import operator
 import os
 import re
 import subprocess
@@ -13,12 +15,18 @@ app.config['SECRET_KEY'] = 'secret!' # TODO: don't...
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 # 10KB seems fair
 socketapp = flask.ext.socketio.SocketIO(app)
 
+# Grab a list of app names
+APPS = map(operator.itemgetter(0),
+           map(os.path.splitext,
+               map(os.path.basename,
+                   glob.glob(os.path.join(app.root_path, 'apps', '*.html')))))
+
 
 @app.route("/")
 def index():
     """ The main page
     """
-    return flask.render_template('index.html')
+    return flask.render_template('index.html', apps=APPS)
 
 
 @app.route("/app/<name>")
