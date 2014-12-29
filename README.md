@@ -1,11 +1,11 @@
-# Toyota code
+# obDash
 
-Some sandboxing code for OBD logging and display for my little Toyota :)
+Some test code for OBD logging and display for my little Toyota :)
 
 # Note
 
 Um, this is a sandbox. Nothing here is stable, but if there's something you
-like, have fun with it.
+like, have fun with it :)
 
 # Setup
 
@@ -26,5 +26,5 @@ The gevent install bit takes forever...
 
 # Licence
 
-MIT except for odb2scantool folder that is GPL (snapshotted from
+MIT except for src/odb2scantool/ folder that is GPL (snapshotted from
 https://github.com/AustinMurphy/OBD2-Scantool 15/12/2014).
