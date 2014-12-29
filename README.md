@@ -1,6 +1,6 @@
 # obDash
 
-Some test code for OBD logging and display for my little Toyota :)
+Some test code for OBD logging and display for my little Toyota.
 
 # Note
 
