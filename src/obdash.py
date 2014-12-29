@@ -5,6 +5,7 @@ import operator
 import os
 import re
 import subprocess
+import time
 
 
 # Create the app, and the socket app to surround it
@@ -64,7 +65,8 @@ def settime():
         if int(epoc) < 0:
             raise Exception('Negative int...')
     except:
-        return ''
+        # If it isn't we return the current time
+        return flask.jsonify({'epoc': time.time()})
 
     # Works as 'pi' on an, err, Pi
     status = subprocess.call('sudo date --set=\'@{}\''.format(epoc),

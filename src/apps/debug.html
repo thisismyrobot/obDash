@@ -1,7 +1,29 @@
 {% extends 'base.html' %}
 
+{% block javascript %}
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            // Read the time as an epoc
+            $.get('/time', function(json) {
+                $('#db_epoc').text(json.epoc);
+            });
+        });
+    </script>
+
+{% endblock %}
+
 {% block content %}
 
-Debug app loaded...
+<h3>Debug</h3>
+<table>
+    <tr>
+        <td>
+            Current device time
+        </td>
+        <td id="db_epoc">
+        </td>
+    </tr>
+</table>
 
 {% endblock %}

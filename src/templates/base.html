@@ -8,6 +8,8 @@
         <script type="text/javascript"
             src="{{ url_for('static', filename='obdash.js') }}">
         </script>
+        {% block javascript %}
+        {% endblock %}
     </head>
     <body>
         <div class="header">
