@@ -1,6 +1,7 @@
 import flask.ext.socketio
 import flask
 import os
+import re
 import subprocess
 
 
@@ -18,6 +19,30 @@ def index():
     """ The main page
     """
     return flask.render_template('index.html')
+
+
+@app.route("/app/<name>")
+def loadapp(name):
+    """ The app loader
+    """
+    # Apps must be lower case strings alphanumeric + underscore strings, 1-10
+    # characters long.
+    if re.match('^\w{1,10}$', name) is None:
+        return 'invalid app name'
+
+    # Forward slash on all platforms, according to Flask docco
+    # http://flask.pocoo.org/docs/0.10/api/#flask.Flask.open_resource
+    app_resource_name = 'apps/{}.html'.format(name)
+    try:
+        with app.open_resource(app_resource_name) as rf:
+            app_template = rf.read()
+    except IOError:
+        return 'failed to load app'
+
+    try:
+        return flask.render_template_string(app_template)
+    except:
+        return 'failed to render app'
 
 
 @app.route("/time")
