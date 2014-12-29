@@ -3,7 +3,7 @@ import flask
 import subprocess
 
 
-app = flask.Flask('toyota')
+app = flask.Flask('obDash')
 app.debug = True
 app.config['SECRET_KEY'] = 'secret!' # TODO: don't...
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 # 10KB seems fair

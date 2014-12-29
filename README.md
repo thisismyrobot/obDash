@@ -19,7 +19,7 @@ sudo apt-get -y install python-pip
 pip install virtualenv
 virtualenv venv
 sudo venv/bin/pip install -r requirements.txt
-venv/bin/python src/toyota.py
+venv/bin/python src/obdash.py
 ```
 
 The gevent install bit takes forever...
