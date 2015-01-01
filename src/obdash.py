@@ -22,6 +22,9 @@ APPS = map(operator.itemgetter(0),
                map(os.path.basename,
                    glob.glob(os.path.join(app.root_path, 'apps', '*.html')))))
 
+# The epoc offset from a client device. None indicates is has not been set.
+EPOCH_OFFSET = None
+
 
 @app.route("/")
 def index():
@@ -54,23 +57,42 @@ def loadapp(name):
         return 'failed to render app'
 
 
-@app.route("/time")
+@app.route("/time", methods=['GET', 'POST'])
 def settime():
-    """ Set the current time using a GET request.
+    """ Get the current time using a GET request, "set" it using a POST.
+
+        GET data includes the offset used in data timestamping, from the
+        device time.
+
+        POST variable is "epoch" and is the current epoch time in seconds,
+        from this and the current device time an offset is calculated and
+        stored.
     """
-    epoc = flask.request.args.get('epoc', None)
+    global EPOCH_OFFSET
+
+    if flask.request.method == 'GET':
+        now = time.time()
+        return flask.jsonify({
+            'dev_epoch': now,
+            'data_offset': EPOCH_OFFSET,
+            'data_epoch': None if EPOCH_OFFSET is None else EPOCH_OFFSET + now
+        })
+
+    # We only the POST data if we don't already have one set
+    if EPOCH_OFFSET is not None:
+        return
+
+    epoch = flask.request.form.get('epoch', None)
 
     # It has to be a positive integer...
     try:
-        if int(epoc) < 0:
-            raise Exception('Negative int...')
+        if float(epoch) < 0:
+            raise Exception('Negative number...')
     except:
-        # If it isn't we return the current time
-        return flask.jsonify({'epoc': time.time()})
+        flask.abort(418) # "I'm a teapot" error...
 
-    # Works as 'pi' on an, err, Pi
-    status = subprocess.call('sudo date --set=\'@{}\''.format(epoc),
-                             shell=True)
+    # Update the offset
+    EPOCH_OFFSET = float(epoch) - time.time()
 
     return ''
 

@@ -6,7 +6,36 @@
         $(document).ready(function(){
             // Read the time as an epoc
             $.get('/time', function(json) {
-                $('#db_epoc').text(json.epoc);
+                // Render the device epoc
+                $('#db_dev_epoch').text(json.dev_epoch);
+
+                // Render the pretty device date
+                var d = new Date(0);
+                d.setUTCSeconds(json.dev_epoch);
+                $('#db_date_pretty').text(d);
+
+                // Render the offset
+                var offset = json.data_offset;
+                if (offset === null) {
+                    $('#db_data_offset').append(
+                        '<span>NOT SET</span>'
+                    ).append(
+                        '<button onclick="setTime()">Set</button>'
+                    );
+                }
+                else {
+                    $('#db_data_offset').text(offset);
+                }
+
+                // Render the data epoch
+                $('#db_data_epoch').text(json.data_epoch);
+
+                // Render the pretty data date
+                if (json.data_epoch !== null) {
+                    var d = new Date(0);
+                    d.setUTCSeconds(json.data_epoch);
+                    $('#db_data_pretty').text(d);
+                }
             });
         });
     </script>
@@ -16,13 +45,37 @@
 {% block content %}
 
 <h3>Debug</h3>
-<table>
+<h4>Time</h4>
+<table border="1">
     <tr>
         <td>
-            Current device time
+            Device epoch
         </td>
-        <td id="db_epoc">
+        <td id="db_dev_epoch"></td>
+    </tr>
+    <tr>
+        <td>
+            Device date
         </td>
+        <td id="db_date_pretty"></td>
+    </tr>
+    <tr>
+        <td>
+            Device data offset
+        </td>
+        <td id="db_data_offset"></td>
+    </tr>
+    <tr>
+        <td>
+            Data epoch
+        </td>
+        <td id="db_data_epoch"></td>
+    </tr>
+    <tr>
+        <td>
+            Data date
+        </td>
+        <td id="db_data_pretty"></td>
     </tr>
 </table>
 
