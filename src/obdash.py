@@ -1,3 +1,4 @@
+import config
 import flask.ext.socketio
 import flask
 import glob
@@ -10,7 +11,7 @@ import time
 
 # Create the app, and the socket app to surround it
 app = flask.Flask('obDash')
-app.debug = True
+app.debug = config.FLASK_DEBUG
 app.root_path = os.path.abspath(os.path.dirname(__file__))
 app.config['SECRET_KEY'] = 'secret!' # TODO: don't...
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 # 10KB seems fair
