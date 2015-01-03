@@ -1,0 +1,30 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+}
+
+.app {
+    float: left;
+    margin: 10px;
+}
+
+.app a {
+    text-decoration: none;
+    color: black;
+}
+
+.app a .icon {
+    display: block;
+    width: 64px;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    border: 1px solid silver;
+}
+
+.app a .title {
+    text-align: center;
+    display: block;
+    width: 64px;
+    margin-top: 3px;
+}
