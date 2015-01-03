@@ -14,7 +14,12 @@
 
 <div class="apps">
     {% for app in apps %}
-        <a href="/app/{{ app }}">{{ app }}</a>
+        <div class="app">
+            <a href="/app/{{ app }}">
+                <img class="icon" src="/app/{{ app }}/resources/icon.png" />
+                <span class="title">{{ app }}</span>
+            </a>
+        </div>
     {% endfor %}
 </div>
 

@@ -17,13 +17,22 @@ app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 # 10KB seems fair
 socketapp = flask.ext.socketio.SocketIO(app)
 
 # Grab a list of app names
-APPS = map(operator.itemgetter(0),
-           map(os.path.splitext,
-               map(os.path.basename,
-                   glob.glob(os.path.join(app.root_path, 'apps', '*.html')))))
+APPS = map(os.path.basename,
+           map(os.path.dirname,
+               glob.glob(os.path.join(app.root_path,
+                                      'apps', '*', 'index.html'))))
+
 
 # The epoc offset from a client device. None indicates is has not been set.
 EPOCH_OFFSET = None
+
+
+def valid_app_name(name):
+    return re.match('^\w{1,10}$', name) is not None
+
+
+def safepath(path):
+    return '..' not in path and not path.strip().startswith('/')
 
 
 @app.route("/")
@@ -33,24 +42,41 @@ def index():
     return flask.render_template('index.html', apps=APPS)
 
 
+@app.route("/app/<appname>/resources/<filename>")
+def appresources(appname, filename):
+    """ Return app-specific resources.
+    """
+    if not valid_app_name(appname):
+        flask.abort(418) # "I'm a teapot" error...
+
+    if not safepath(appname):
+        flask.abort(418) # "I'm a teapot" error...
+
+    path = os.path.join(app.root_path, 'apps', appname)
+
+    return flask.send_from_directory(path, filename)
+
+
 @app.route("/app/<name>")
 def loadapp(name):
     """ The app loader
     """
     # Apps must be lower case strings alphanumeric + underscore strings, 1-10
     # characters long.
-    if re.match('^\w{1,10}$', name) is None:
+    if not valid_app_name(name):
         return 'invalid app name'
 
+    # Grab the template
     # Forward slash on all platforms, according to Flask docco
     # http://flask.pocoo.org/docs/0.10/api/#flask.Flask.open_resource
-    app_resource_name = 'apps/{}.html'.format(name)
+    app_resource_name = 'apps/{}/index.html'.format(name)
     try:
         with app.open_resource(app_resource_name) as rf:
             app_template = rf.read()
     except IOError:
         return 'failed to load app'
 
+    # Render the template and return it
     try:
         return flask.render_template_string(app_template)
     except:
