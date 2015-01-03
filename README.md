@@ -26,5 +26,4 @@ The gevent install bit takes forever...
 
 # Licence
 
-MIT except for src/odb2scantool/ folder that is GPL (snapshotted from
-https://github.com/AustinMurphy/OBD2-Scantool 15/12/2014).
+MIT
