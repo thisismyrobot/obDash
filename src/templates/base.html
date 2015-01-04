@@ -17,6 +17,10 @@
         {% endblock %}
     </head>
     <body>
+        <audio>
+            <source type="audio/wav"
+                src="{{ url_for('static', filename='beep.wav') }}" />
+        </audio>
         <div class="header">
             <a href="/">Apps</a>
         </div>
