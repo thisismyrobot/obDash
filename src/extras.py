@@ -6,7 +6,7 @@ MAP = {
     0xFF: {
         # Pi CPU temperature
         0x00: lambda: subprocess.check_output(
-            'vcgencmd measure_temp'
-        ).split('=')[1],
+            '/usr/bin/vcgencmd measure_temp',
+            shell=True).split('=')[1],
     },
 }
