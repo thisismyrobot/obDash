@@ -3,7 +3,13 @@
 {% block javascript %}
 
     <script type="text/javascript">
+
         $(document).ready(function(){
+
+            /*
+                Get the time data
+            */
+
             // Read the time as an epoc
             $.get('/time', function(json) {
                 // Render the device epoc
@@ -40,6 +46,32 @@
                     $('#db_data_pretty').text(d);
                 }
             });
+
+            /*
+                Talk to the ELM327
+            */
+
+            // Register a set of listeners for replies
+            obdash.on([0x01, 0x00], function(data) {
+                console.log('block 1:', data);
+            });
+            obdash.on([0x01, 0x20], function(data) {
+                console.log('block 2:', data);
+            });
+            obdash.on([0x01, 0x40], function(data) {
+                console.log('block 3:', data);
+            });
+            obdash.on([0x01, 0x60], function(data) {
+                console.log('block 4:', data);
+            });
+
+            // Now register some data to be informed of new values for
+            obdash.polled([
+                [0x01, 0x00], // The list of PIDs supported in block 1
+                [0x01, 0x20], // The list of PIDs supported in block 2
+                [0x01, 0x40], // The list of PIDs supported in block 3
+                [0x01, 0x60], // The list of PIDs supported in block 4
+            ]);
         });
     </script>
 
@@ -79,6 +111,16 @@
             Data date
         </td>
         <td id="db_data_pretty"></td>
+    </tr>
+</table>
+
+<h4>ELM327</h4>
+<table border="1">
+    <tr>
+        <td>
+            Detected?
+        </td>
+        <td id="db_327_detected"></td>
     </tr>
 </table>
 

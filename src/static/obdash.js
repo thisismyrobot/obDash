@@ -1,4 +1,7 @@
 var obdash = (function () {
+
+    var activepids = [];
+
     return {
 
         // Sets the server time offset from the client device
@@ -15,6 +18,18 @@ var obdash = (function () {
             setTimeout(function() {
                 location.reload(true);
             }, delay);
-        }
+        },
+
+        polled: function(pids) {
+            if (pids === undefined || !$.isArray(pids)) {
+                // TODO: Error appropriately
+                return;
+            }
+
+            activepids = pids;
+
+            console.log(activepids);
+
+        },
     };
 })();
