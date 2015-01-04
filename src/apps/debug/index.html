@@ -64,14 +64,22 @@
             obdash.on(0x01, 0x60, function(data) {
                 $('#db_pid_support_4').text(data.value);
             });
+            obdash.on(0x01, 0x0C, function(data) {
+                $('#db_pid_rpm').text(data.value);
+            });
 
-            // Now register some data to be informed of new values for
-            obdash.start([
+            // Snapshot the supported PIDs
+            obdash.oneshot([
                 [0x01, 0x00], // The list of PIDs supported in block 1
                 [0x01, 0x20], // The list of PIDs supported in block 2
                 [0x01, 0x40], // The list of PIDs supported in block 3
                 [0x01, 0x60], // The list of PIDs supported in block 4
-            ], 1); // Times/second to attempt to get all the data
+            ]);
+
+            // And set up a polling for the current RPM
+            obdash.polled([
+                [0x01, 0x0C], // RPM
+            ], 5); // 5 times a second
 
         });
     </script>
@@ -115,29 +123,35 @@
     </tr>
 </table>
 
-<h4>Supported PIDs</h4>
+<h4>Data</h4>
 <table border="1">
     <tr>
         <td>
-            Block 01
+            Current RPM
+        </td>
+        <td id="db_pid_rpm"></td>
+    </tr>
+    <tr>
+        <td>
+            Supported PIDs 01
         </td>
         <td id="db_pid_support_1"></td>
     </tr>
     <tr>
         <td>
-            Block 02
+            Supported PIDs 02
         </td>
         <td id="db_pid_support_2"></td>
     </tr>
     <tr>
         <td>
-            Block 03
+            Supported PIDs 03
         </td>
         <td id="db_pid_support_3"></td>
     </tr>
     <tr>
         <td>
-            Block 04
+            Supported PIDs 04
         </td>
         <td id="db_pid_support_4"></td>
     </tr>

@@ -28,23 +28,18 @@ var obdash = (function () {
             eventmap[[mode, pid]] = func;
         },
 
-        refresh: function(delay) {
-            if (delay === undefined) {
-                delay = 0;
+        oneshot: function(pids) {
+            if (pids === undefined) {
+                throw 'start: Array of PIDs is required';
             }
-            setTimeout(function() {
-                location.reload(true);
-            }, delay);
+
+            if (!$.isArray(pids)) {
+                throw 'start: First argument (PIDs) must be an array';
+            }
+            pollTicker(pids);
         },
 
-        // Sets the server time offset from the client device
-        setTime: function () {
-            $.post('/time', {
-                'epoch': new Date().getTime() / 1000,
-            });
-        },
-
-        start: function(pids, hz) {
+        polled: function(pids, hz) {
             obdash.stop();
 
             if (pids === undefined || hz === undefined) {
@@ -65,6 +60,22 @@ var obdash = (function () {
             }, 1000 / hz);
             pollTicker(pids);
 
+        },
+
+        refresh: function(delay) {
+            if (delay === undefined) {
+                delay = 0;
+            }
+            setTimeout(function() {
+                location.reload(true);
+            }, delay);
+        },
+
+        // Sets the server time offset from the client device
+        setTime: function () {
+            $.post('/time', {
+                'epoch': new Date().getTime() / 1000,
+            });
         },
 
         stop: function() {
