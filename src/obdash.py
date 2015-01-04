@@ -2,6 +2,7 @@ import config
 import flask.ext.socketio
 import flask
 import glob
+import obd2
 import os
 import re
 import time
@@ -41,7 +42,13 @@ def handle_poll(message):
     """
     try:
         for mode, pid in message['pids']:
-            print mode, pid
+            socketapp.emit('value', {
+                'timestamp': (None
+                              if EPOCH_OFFSET is None
+                              else EPOCH_OFFSET + time.time()),
+                'pid': (mode, pid),
+                'value': obd2.value(mode, pid),
+            })
     except KeyError:
         flask.abort(418)  # "I'm a teapot" error...
 

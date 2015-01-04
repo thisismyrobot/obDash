@@ -8,6 +8,9 @@ var obdash = (function () {
         if (socket === null) {
             socket = io.connect(
                 'http://' + document.domain + ':' + location.port);
+            socket.on('value', function(data) {
+                console.log(data);
+            });
         }
         socket.emit('poll', {
             pids: activepids,
@@ -56,6 +59,7 @@ var obdash = (function () {
                 pollTicker(pids);
             }, 1000 / hz);
             pollTicker(pids);
+
         },
 
         stop: function() {
