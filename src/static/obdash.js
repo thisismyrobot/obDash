@@ -1,14 +1,16 @@
 var obdash = (function () {
 
-    var activepids = [];
+    var intervalTimer = null;
+    var eventmap = {};
+
+    var pollTicker = function(activepids) {
+        console.log(activepids);
+    };
 
     return {
 
-        // Sets the server time offset from the client device
-        setTime: function () {
-            $.post('/time', {
-                'epoch': new Date().getTime() / 1000,
-            });
+        on: function(mode, pid, func) {
+            eventmap[[mode, pid]] = func;
         },
 
         refresh: function(delay) {
@@ -20,16 +22,40 @@ var obdash = (function () {
             }, delay);
         },
 
-        polled: function(pids) {
-            if (pids === undefined || !$.isArray(pids)) {
-                // TODO: Error appropriately
-                return;
+        // Sets the server time offset from the client device
+        setTime: function () {
+            $.post('/time', {
+                'epoch': new Date().getTime() / 1000,
+            });
+        },
+
+        start: function(pids, hz) {
+            obdash.stop();
+
+            if (pids === undefined || hz === undefined) {
+                throw 'start: Array of PIDs and a polling Hz are required';
             }
 
-            activepids = pids;
+            if (!$.isArray(pids)) {
+                throw 'start: First argument (PIDs) must be an array';
+            }
 
-            console.log(activepids);
+            if (typeof(hz) !== 'number' || hz <= 0 || hz > 20) {
+                throw 'start: Second argument (Hz) must be an number 0 < Hz <= 20';
+            }
 
+            // Update the interval and array of active pids, do the first run
+            intervalTimer = setInterval(function() {
+                pollTicker(pids);
+            }, 1000 / hz);
+            pollTicker(pids);
         },
+
+        stop: function() {
+            if (intervalTimer !== null) {
+                clearInterval(intervalTimer);
+            }
+        },
+
     };
 })();
