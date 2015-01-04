@@ -2,10 +2,8 @@ import config
 import flask.ext.socketio
 import flask
 import glob
-import operator
 import os
 import re
-import subprocess
 import time
 
 
@@ -13,8 +11,8 @@ import time
 app = flask.Flask('obDash')
 app.debug = config.FLASK_DEBUG
 app.root_path = os.path.abspath(os.path.dirname(__file__))
-app.config['SECRET_KEY'] = 'secret!' # TODO: don't...
-app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 # 10KB seems fair
+app.config['SECRET_KEY'] = 'secret!'  # TODO: don't...
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024  # 10KB seems fair
 socketapp = flask.ext.socketio.SocketIO(app)
 
 # Grab a list of app names
@@ -116,7 +114,7 @@ def settime():
         if float(epoch) < 0:
             raise Exception('Negative number...')
     except:
-        flask.abort(418) # "I'm a teapot" error...
+        flask.abort(418)  # "I'm a teapot" error...
 
     # Update the offset
     EPOCH_OFFSET = float(epoch) - time.time()
