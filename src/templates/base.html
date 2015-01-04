@@ -17,11 +17,7 @@
         {% endblock %}
     </head>
     <body>
-        <audio id="audio_beep" controls>
-            <source type="audio/wav"
-                src="{{ url_for('static', filename='beep.wav') }}" />
-        </audio>
-        <audio id="audio_beep2" controls>
+        <audio id="audio_beep">
             <source type="audio/mp3"
                 src="{{ url_for('static', filename='beep.mp3') }}" />
         </audio>
