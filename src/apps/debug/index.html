@@ -81,6 +81,15 @@
                 [0x01, 0x0C], // RPM
             ], 5); // 5 times a second
 
+            /*
+                Set up extras
+            */
+            $('#db_extra_beep').append(
+                $('<button>Beep</button>').click(function() {
+                    obdash.beep();
+                })
+            );
+
         });
     </script>
 
@@ -154,6 +163,16 @@
             Supported PIDs 04
         </td>
         <td id="db_pid_support_4"></td>
+    </tr>
+</table>
+
+<h4>Extra</h4>
+<table border="1">
+    <tr>
+        <td>
+            Beep
+        </td>
+        <td id="db_extra_beep"></td>
     </tr>
 </table>
 

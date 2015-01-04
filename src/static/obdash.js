@@ -24,6 +24,10 @@ var obdash = (function () {
 
     return {
 
+        beep: function() {
+            document.getElementById('audio_beep').play();
+        },
+
         on: function(mode, pid, func) {
             eventmap[[mode, pid]] = func;
         },
