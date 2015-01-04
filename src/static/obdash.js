@@ -2,9 +2,16 @@ var obdash = (function () {
 
     var intervalTimer = null;
     var eventmap = {};
+    var socket = null;
 
     var pollTicker = function(activepids) {
-        console.log(activepids);
+        if (socket === null) {
+            socket = io.connect(
+                'http://' + document.domain + ':' + location.port);
+        }
+        socket.emit('poll', {
+            pids: activepids,
+        });
     };
 
     return {
@@ -55,6 +62,7 @@ var obdash = (function () {
             if (intervalTimer !== null) {
                 clearInterval(intervalTimer);
             }
+            socket = null;
         },
 
     };

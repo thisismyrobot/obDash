@@ -7,12 +7,13 @@ import re
 import time
 
 
-# Create the app, and the socket app to surround it
+# Create the app
 app = flask.Flask('obDash')
 app.debug = config.FLASK_DEBUG
 app.root_path = os.path.abspath(os.path.dirname(__file__))
+
+# Prep for and create the socket app
 app.config['SECRET_KEY'] = 'secret!'  # TODO: don't...
-app.config['MAX_CONTENT_LENGTH'] = 10 * 1024  # 10KB seems fair
 socketapp = flask.ext.socketio.SocketIO(app)
 
 # Grab a list of app names
@@ -32,6 +33,17 @@ def valid_app_name(name):
 
 def safepath(path):
     return '..' not in path and not path.strip().startswith('/')
+
+
+@socketapp.on('poll')
+def handle_poll(message):
+    """ Handles PID polls.
+    """
+    try:
+        for mode, pid in message['pids']:
+            print mode, pid
+    except KeyError:
+        flask.abort(418)  # "I'm a teapot" error...
 
 
 @app.route("/")
