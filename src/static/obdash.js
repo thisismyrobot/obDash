@@ -9,7 +9,12 @@ var obdash = (function () {
             socket = io.connect(
                 'http://' + document.domain + ':' + location.port);
             socket.on('value', function(data) {
-                console.log(data);
+                if (eventmap.hasOwnProperty(data.pid)) {
+                    eventmap[data.pid]({
+                        'timestamp': data.timestamp,
+                        'value': data.value,
+                    });
+                }
             });
         }
         socket.emit('poll', {
