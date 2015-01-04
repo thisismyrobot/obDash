@@ -20,7 +20,10 @@
                     $('#db_data_offset').append(
                         '<span>NOT SET</span>'
                     ).append(
-                        '<button onclick="setTime(); refresh(250)">Set</button>'
+                        $('<button>Set</button>').click(function() {
+                            obdash.setTime();
+                            obdash.refresh(250);
+                        })
                     );
                 }
                 else {
