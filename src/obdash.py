@@ -67,7 +67,7 @@ def appresources(appname, filename):
     if not valid_app_name(appname):
         flask.abort(418)  # "I'm a teapot" error...
 
-    if not safepath(appname):
+    if not safepath(filename):
         flask.abort(418)  # "I'm a teapot" error...
 
     if filename == 'index.html':
