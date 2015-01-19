@@ -91,3 +91,7 @@ var obdash = (function () {
 
     };
 })();
+
+$(document).ready(function(){
+    obdash.setTime();
+});
