@@ -4,6 +4,9 @@
         <title>obDash</title>
         <link rel="stylesheet" type="text/css"
             href="{{ url_for('static', filename='obdash.css') }}">
+        {% block css %}
+        {% endblock %}
+
         <script type="text/javascript"
             src="{{ url_for('static', filename='jquery-2.1.3.min.js') }}">
         </script>
