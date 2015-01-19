@@ -17,19 +17,19 @@ app.root_path = os.path.abspath(os.path.dirname(__file__))
 app.config['SECRET_KEY'] = 'secret!'  # TODO: don't...
 socketapp = flask.ext.socketio.SocketIO(app)
 
-# Grab a list of app names
-APPS = map(os.path.basename,
-           map(os.path.dirname,
-               glob.glob(os.path.join(app.root_path,
-                                      'apps', '*', 'index.html'))))
-
-
 # The epoc offset from a client device. None indicates is has not been set.
 EPOCH_OFFSET = None
 
 
 def valid_app_name(name):
     return re.match('^[a-z0-9-]{1,10}$', name) is not None
+
+# Grab a list of app names
+APPS = filter(valid_app_name,
+              map(os.path.basename,
+                  map(os.path.dirname,
+                      glob.glob(os.path.join(app.root_path,
+                                             'apps', '*', 'index.html')))))
 
 
 def safepath(path):
