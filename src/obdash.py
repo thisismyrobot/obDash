@@ -60,7 +60,7 @@ def index():
     return flask.render_template('index.html', apps=APPS)
 
 
-@app.route("/app/<appname>/resources/<filename>")
+@app.route("/app/<appname>/<filename>")
 def appresources(appname, filename):
     """ Return app-specific resources.
     """
@@ -70,12 +70,16 @@ def appresources(appname, filename):
     if not safepath(appname):
         flask.abort(418)  # "I'm a teapot" error...
 
+    if filename == 'index.html':
+        # Redirect to app root
+        return flask.redirect('/app/{}/'.format(appname), 302)
+
     path = os.path.join(app.root_path, 'apps', appname)
 
     return flask.send_from_directory(path, filename)
 
 
-@app.route("/app/<name>")
+@app.route("/app/<name>/")
 def loadapp(name):
     """ The app loader
     """
