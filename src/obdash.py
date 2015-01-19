@@ -29,7 +29,7 @@ EPOCH_OFFSET = None
 
 
 def valid_app_name(name):
-    return re.match('^\w{1,10}$', name) is not None
+    return re.match('^[a-z0-9-]{1,10}$', name) is not None
 
 
 def safepath(path):
