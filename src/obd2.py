@@ -15,6 +15,8 @@ MAP = {
         0x60: lambda: (0x44, 0x46),
         # Current RPM
         0x0C: lambda: random.randint(700, 730),
+        # Current KPH
+        0x0D: lambda: 100,
     },
 }
 MAP.update(extras.MAP)
