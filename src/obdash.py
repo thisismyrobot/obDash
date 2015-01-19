@@ -128,7 +128,7 @@ def settime():
 
     # We only the POST data if we don't already have one set
     if EPOCH_OFFSET is not None:
-        return
+        return ''
 
     epoch = flask.request.form.get('epoch', None)
 
