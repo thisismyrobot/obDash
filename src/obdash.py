@@ -43,7 +43,7 @@ def handle_poll(message):
     try:
         for mode, pid in message['pids']:
             socketapp.emit('value', {
-                'timestamp': (None
+                'timestamp': (time.time()
                               if EPOCH_OFFSET is None
                               else EPOCH_OFFSET + time.time()),
                 'pid': (mode, pid),
