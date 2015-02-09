@@ -19,6 +19,8 @@ MAP = {
         0x0D: lambda: 100,
     },
 }
+
+# Add the extra non-OBD2 mode 0xFF PIDs
 MAP.update(extras.MAP)
 
 
