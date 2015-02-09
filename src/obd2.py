@@ -25,7 +25,10 @@ MAP.update(extras.MAP)
 
 
 def value(mode, pid):
-    global MAP
+    """ Return the value of a mode+pid combination.
+
+        It is up to the lambda in the MAP to do any IO.
+    """
     try:
         return MAP[mode][pid]()
     except KeyError:

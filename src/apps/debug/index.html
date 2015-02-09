@@ -72,6 +72,9 @@
             obdash.on(0xFF, 0x00, function(data) {
                 $('#db_extra_temp').text(data.value);
             });
+            obdash.on(0xFF, 0xFF, function(data) {
+                $('#db_extra_at_ati').text(data.value);
+            });
 
             // Snapshot the supported PIDs and Pi CPU temperature
             obdash.oneshot([
@@ -86,6 +89,11 @@
             obdash.polled([
                 [0x01, 0x0C], // RPM
             ], 5); // 5 times a second
+
+            // Custom polling (every 2 secs) for the version number
+            setInterval(function() {
+                obdash.oneshot([[0xFF, 0xFF]]);
+            }, 2000);
 
             /*
                 Set up extras
@@ -173,6 +181,12 @@
 
 <h4>Extra</h4>
 <table border="1">
+    <tr>
+        <td>
+            ELM327 Version
+        </td>
+        <td id="db_extra_at_ati"></td>
+    </tr>
     <tr>
         <td>
             Beep
