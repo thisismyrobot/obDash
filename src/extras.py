@@ -3,7 +3,7 @@ import platform
 import subprocess
 
 
-MAP = {
+CALLABLES = {
     # Pi-specific, "faked" OBD data sources
     0xFF: {
         # Pi CPU temperature
@@ -13,6 +13,6 @@ MAP = {
                           '/usr/bin/vcgencmd measure_temp',
                           shell=True).split('=')[1],
         # AT mode echo the version, a good comms test
-        0xFF: lambda: elm327wifi.reader.transact('ATI'),
+        0xFF: lambda: elm327wifi.get('ATI', str_response=True),
     },
 }

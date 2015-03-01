@@ -1,8 +1,9 @@
+import elm327wifi
 import extras
-import random
 
 
-MAP = {
+# Maps MODE and PID to a callable
+CALLABLES = {
     # Realtime
     0x01: {
         # Block 1 supported PIDs
@@ -14,14 +15,21 @@ MAP = {
         # Block 4 supported PIDs
         0x60: lambda: (0x44, 0x46),
         # Current RPM
-        0x0C: lambda: random.randint(700, 730),
+        0x0C: lambda: elm327wifi.get('010C'),
         # Current KPH
-        0x0D: lambda: 100,
+        0x0D: lambda: elm327wifi.get('010D'),
     },
 }
 
 # Add the extra non-OBD2 mode 0xFF PIDs
-MAP.update(extras.MAP)
+CALLABLES.update(extras.CALLABLES)
+
+# Processors for anything that cannot just be returned as-is.
+PROCESSORS = {
+    0x01: {
+        0x0C: lambda a, b: ((a * 256) + b) / 4,
+    }
+}
 
 
 def value(mode, pid):
@@ -29,7 +37,9 @@ def value(mode, pid):
 
         It is up to the lambda in the MAP to do any IO.
     """
+    func = CALLABLES[mode][pid]
+    data = func()
     try:
-        return MAP[mode][pid]()
+        data = PROCESSORS[mode][pid](*data)
     except KeyError:
-        return random.randint(0, 255)
+        pass

@@ -19,25 +19,40 @@ class __Reader(object):
 
         time.sleep(1)
 
-    def transact(self, command):
-        command = '{}\r'.format(command.strip())
+    def transact(self, at_command, str_response=False):
+        """ Send a command.
+
+            Command can be one or more strings or things that can be casted to
+            strings. They are concatendated.
+
+            So ATI works, as does 0x01, 0x0C
+        """
+        at_command = '{}\r'.format(at_command.strip())
 
         try:
 
-            # Open a socket with a closing context
+            # Open a socket with a closing context, send the query, grab a
+            # response.
             sock_type = (socket.AF_INET, socket.SOCK_STREAM)
             with contextlib.closing(socket.socket(*sock_type)) as sock:
-                sock.setblocking(0) # Non-blocking
                 sock.connect((self._ip, self._port))
-                sock.sendall(command)
+                sock.sendall(at_command)
+                response = sock.recv(30)
+
+                if str_response:
+                    return response
+
+                # Parse out the actual response data
+                data = response.split(" ")[2:-1]
+
+                # Create tokens from the data
+                tokens = [ord(chr(int(t, 16))) for t in data]
+
+                return tokens
 
         except Exception as e:
-            print e, command
-
-    def get(self, mode, pid):
-        """ A niave and slow-ish getter over IP.
-        """
-        pass
+            print e, at_command
 
 
-reader = __Reader()
+__reader = __Reader()
+get = __reader.transact
