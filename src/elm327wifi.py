@@ -89,7 +89,7 @@ class __Reader(object):
             return []
 
 
-get = lambda x, y: []
+get = lambda x, y=None: []
 
 
 def keep_alive():
