@@ -31,9 +31,8 @@
                 src="{{ url_for('static', filename='beep.mp3') }}" />
         </audio>
         <div class="header">
-            <a href="/">Apps</a>
+            <a href="/">obDash</a>{% block app_title %}{% endblock %}
         </div>
-        <hr />
         {% block content %}
         {% endblock %}
     </body>

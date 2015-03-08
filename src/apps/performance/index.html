@@ -42,6 +42,8 @@
                 max: 20,
                 title: 'Heat Soak',
                 label: 'Degrees C',
+                valueFontColor: "White",
+                gaugeColor: "#333333",
                 customSectors : [{
                     lo: -20,
                     hi: 0,
@@ -55,12 +57,64 @@
                     hi: 20,
                     color: '#ff0000',
                 }],
-           });
+            });
+
+            var g_iat = new JustGage({
+                id: 'dial_iat', 
+                value: 0, 
+                min: -20,
+                max: 60,
+                title: 'Intake Air Temperature',
+                label: 'Degrees C',
+                valueFontColor: "White",
+                gaugeColor: "#333333",
+                customSectors : [{
+                    lo: -20,
+                    hi: 10,
+                    color: '#00ff00',
+                }, {
+                    lo: 11,
+                    hi: 20,
+                    color: '#ffff00',
+                }, {
+                    lo: 21,
+                    hi: 60,
+                    color: '#ff0000',
+                }],
+            });
+
+            var g_aat = new JustGage({
+                id: 'dial_aat', 
+                value: 0, 
+                min: -20,
+                max: 40,
+                title: 'Ambient Air Temperature',
+                label: 'Degrees C',
+                valueFontColor: "White",
+                gaugeColor: "#333333",
+                customSectors : [{
+                    lo: -20,
+                    hi: 10,
+                    color: '#00ff00',
+                }, {
+                    lo: 11,
+                    hi: 15,
+                    color: '#ffff00',
+                }, {
+                    lo: 16,
+                    hi: 40,
+                    color: '#ff0000',
+                }],
+            });
 
             // Trigger the updates to the UI
             setInterval(function() {
+                iat = 36;
+                aat = 21;
                 update([
                     [g_heatsoak, iat - aat],
+                    [g_iat, iat],
+                    [g_aat, aat],
                 ]);
             }, 5000);
         });
@@ -69,12 +123,17 @@
 
 {% endblock %}
 
+{% block app_title %} // Performance monitor{% endblock %}
+
 {% block content %}
 
-<h3>Performance monitor</h3>
-
-<div class="dial" id="dial_heatsoak">
-
+<div style="clear:both">
+</div>
+<div class="dial big" id="dial_heatsoak" style="float: left;"></div>
+<div style="float:left;">
+    <div class="dial" id="dial_iat"></div>
+    <div class="dial" id="dial_aat"></div>
+<div>
 </div>
 
 {% endblock %}

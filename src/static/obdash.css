@@ -1,6 +1,19 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
+    background-color: black;
+    color: white;
+}
+
+.header {
+    padding:5px;
+    font-size: 28px;
+}
+
+.header a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
 }
 
 .app {
@@ -10,25 +23,33 @@ body {
 
 .app a {
     text-decoration: none;
-    color: black;
+    color: white;
 }
 
 .app a .icon {
     display: block;
-    width: 64px;
+    width: 96px;
     -webkit-border-radius: 8px;
     -moz-border-radius: 8px;
     border-radius: 8px;
-    border: 1px solid silver;
+    border: 1px solid #333333;
 }
 
 .app a .title {
     text-align: center;
     display: block;
-    width: 64px;
+    width: 96px;
     margin-top: 3px;
 }
 
 .dial {
-    border: 1px solid silver;
+}
+
+.dial.big {
+    width: 400px;
+    height: 320px;
+}
+
+.dial text {
+    color: white;
 }
