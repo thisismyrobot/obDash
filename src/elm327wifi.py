@@ -1,5 +1,6 @@
 import re
 import socket
+import threading
 import time
 
 
@@ -87,5 +88,18 @@ class __Reader(object):
         except Exception as e:
             return []
 
-__reader = __Reader()
-get = __reader.transact
+
+get = lambda x, y: []
+
+
+def keep_alive():
+    global get
+    while True:
+        try:
+            reader = __Reader()
+            get = reader.transact
+        except:
+            print 'boom'
+            time.sleep(2)
+
+threading.Thread(target=keep_alive).start()
