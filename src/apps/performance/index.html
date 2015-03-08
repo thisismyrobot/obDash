@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block javascript %}
+
+    <script type="text/javascript">
+        function update(data) {
+            $.each(data, function(_, item) {
+                item[0].refresh(item[1]);
+            });
+        }
+
+        $(document).ready(function(){
+
+            var iat = 0;
+            var aat = 0;
+
+            // Listen for the Intake Air Temperature
+            obdash.on(0x01, 0x0F, function(data) {
+                iat = data.value;
+            });
+
+            // Listen for the Ambient Air Temperature
+            obdash.on(0x01, 0x46, function(data) {
+                aat = data.value;
+            });
+
+            // Set up a polling for the current values
+            obdash.polled([
+                [0x01, 0x0F],
+                [0x01, 0x46],
+            ], 0.2); // Every 5 seconds.
+
+            // Add the actual guages
+            var g_heatsoak = new JustGage({
+                id: 'dial_heatsoak', 
+                value: 0, 
+                min: -20,
+                max: 20,
+                title: 'Heat Soak',
+                label: 'Degrees C',
+                customSectors : [{
+                    lo: -20,
+                    hi: 0,
+                    color: '#00ff00',
+                }, {
+                    lo: 1,
+                    hi: 5,
+                    color: '#ffff00',
+                }, {
+                    lo: 6,
+                    hi: 20,
+                    color: '#ff0000',
+                }],
+           });
+
+            // Trigger the updates to the UI
+            setInterval(function() {
+                update([
+                    [g_heatsoak, iat - aat],
+                ]);
+            }, 5000);
+        });
+
+    </script>
+
+{% endblock %}
+
+{% block content %}
+
+<h3>Performance monitor</h3>
+
+<div class="dial" id="dial_heatsoak">
+
+</div>
+
+{% endblock %}

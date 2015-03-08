@@ -28,3 +28,7 @@ body {
     width: 64px;
     margin-top: 3px;
 }
+
+.dial {
+    border: 1px solid silver;
+}
