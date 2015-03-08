@@ -51,6 +51,8 @@ def handle_poll(message):
             })
     except KeyError:
         flask.abort(418)  # "I'm a teapot" error...
+    except obd2.NoValueException as ex:
+        print 'value issue: {}'.format(ex)
 
 
 @app.route("/")

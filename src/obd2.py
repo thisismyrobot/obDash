@@ -19,7 +19,7 @@ CALLABLES = {
         # Current KPH
         0x0D: lambda: elm327wifi.get('010D'),
         # Current Intake Air Temperature
-        0x0F: lambda: elm327wifi('010F'),
+        0x0F: lambda: elm327wifi.get('010F'),
     },
 }
 
@@ -37,18 +37,24 @@ PROCESSORS = {
 }
 
 
+class NoValueException(Exception):
+    pass
+
+
 def value(mode, pid):
     """ Return the value of a mode+pid combination.
 
         It is up to the lambda in the MAP to do any IO.
     """
-    func = CALLABLES[mode][pid]
-    data = func()
     try:
-        data = PROCESSORS[mode][pid](*data)
+        func = CALLABLES[mode][pid]
+        data = func()
+        try:
+            data = PROCESSORS[mode][pid](*data)
+            return data
+        except KeyError:
+            # Not all data needs a processor
+            pass
         return data
-    except KeyError:
-        pass
-    except TypeError:
-        # Due to now data returned...
-        print 'TypeError...'
+    except Exception as ex:
+        raise NoValueException(ex.message)
