@@ -18,6 +18,8 @@ CALLABLES = {
         0x0C: lambda: elm327wifi.get('010C'),
         # Current KPH
         0x0D: lambda: elm327wifi.get('010D'),
+        # Current Intake Air Temperature
+        0x0F: lambda: elm327wifi('010F'),
     },
 }
 
@@ -27,7 +29,10 @@ CALLABLES.update(extras.CALLABLES)
 # Processors for anything that cannot just be returned as-is.
 PROCESSORS = {
     0x01: {
+        # Current RPM
         0x0C: lambda a, b: ((a * 256) + b) / 4,
+        # Intake Air Temperature
+        0x0F: lambda a: a - 40,
     }
 }
 
@@ -41,5 +46,9 @@ def value(mode, pid):
     data = func()
     try:
         data = PROCESSORS[mode][pid](*data)
+        return data
     except KeyError:
         pass
+    except TypeError:
+        # Due to now data returned...
+        print 'TypeError...'
