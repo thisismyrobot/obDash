@@ -99,7 +99,6 @@ def keep_alive():
             reader = __Reader()
             get = reader.transact
         except:
-            print 'boom'
-            time.sleep(2)
+            time.sleep(5)
 
 threading.Thread(target=keep_alive).start()

@@ -1,11 +1,13 @@
+""" obDash web app.
+"""
 import config
 import flask.ext.socketio
 import flask
 import glob
-import obd2
+import obd2_proc
 import os
-import re
 import time
+import tools
 
 
 # Create the app
@@ -20,39 +22,49 @@ socketapp = flask.ext.socketio.SocketIO(app)
 # The epoc offset from a client device. None indicates is has not been set.
 EPOCH_OFFSET = None
 
-
-def valid_app_name(name):
-    return re.match('^[a-z0-9-]{1,12}$', name) is not None
+# The hardware-bound stuff will be in a different process, using shared
+# memory to buffer PID values.
+obd2 = None
 
 # Grab a list of app names
-APPS = filter(valid_app_name,
+APPS = filter(tools.valid_app_name,
               map(os.path.basename,
                   map(os.path.dirname,
                       glob.glob(os.path.join(app.root_path,
                                              'apps', '*', 'index.html')))))
 
 
-def safepath(path):
-    return '..' not in path and not path.strip().startswith('/')
-
-
 @socketapp.on('poll')
 def handle_poll(message):
     """ Handles PID polls.
     """
-    try:
-        for mode, pid in message['pids']:
-            socketapp.emit('value', {
-                'timestamp': (time.time()
+    for mode, pid in message['pids']:
+        obd2.request(mode, pid)
+
+
+@socketapp.on('tick')
+def handle_tick():
+    """ Handles tick requests.
+
+        Every time a tick message is sent any data queued from the OBD
+        interface is returned to the user in a series of emit messages.
+    """
+    while True:
+        try:
+            mode, pid, value, when = obd2.response()
+        except TypeError:
+            # If there are no responses yet/left.
+            break
+
+        socketapp.emit(
+            'value', {
+                'timestamp': (when
                               if EPOCH_OFFSET is None
-                              else EPOCH_OFFSET + time.time()),
+                              else EPOCH_OFFSET + when),
                 'pid': (mode, pid),
-                'value': obd2.value(mode, pid),
-            })
-    except KeyError:
-        flask.abort(418)  # "I'm a teapot" error...
-    except obd2.NoValueException as ex:
-        print 'value issue: {}'.format(ex)
+                'value': value,
+            }
+        )
 
 
 @app.route("/")
@@ -66,10 +78,10 @@ def index():
 def appresources(appname, filename):
     """ Return app-specific resources.
     """
-    if not valid_app_name(appname):
+    if not tools.valid_app_name(appname):
         flask.abort(418)  # "I'm a teapot" error...
 
-    if not safepath(filename):
+    if not tools.safepath(filename):
         flask.abort(418)  # "I'm a teapot" error...
 
     if filename == 'index.html':
@@ -87,7 +99,7 @@ def loadapp(name):
     """
     # Apps must be lower case strings alphanumeric + underscore strings, 1-10
     # characters long.
-    if not valid_app_name(name):
+    if not tools.valid_app_name(name):
         return 'invalid app name'
 
     # Grab the template
@@ -148,4 +160,10 @@ def settime():
 
 
 if __name__ == "__main__":
+    # Launch the IO-limited stuff (the elm327-interface) in a separate
+    # process.
+    obd2 = obd2_proc.Obd2Process()
+    obd2.start_process()
+
+    # Launch the flask socketio-aware app
     socketapp.run(app, host='0.0.0.0')

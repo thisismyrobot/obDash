@@ -1,26 +1,42 @@
 var obdash = (function () {
 
-    var intervalTimer = null;
+    var pollIntervalTimer = null;
     var eventmap = {};
     var socket = null;
 
+    var setupSocket = function() {
+        socket = io.connect(
+            'http://' + document.domain + ':' + location.port);
+        socket.on('value', function(data) {
+            console.log(data);
+            if (eventmap.hasOwnProperty(data.pid)) {
+                eventmap[data.pid]({
+                    'timestamp': data.timestamp,
+                    'value': data.value,
+                });
+            }
+        });
+    }
+
     var pollTicker = function(activepids) {
         if (socket === null) {
-            socket = io.connect(
-                'http://' + document.domain + ':' + location.port);
-            socket.on('value', function(data) {
-                if (eventmap.hasOwnProperty(data.pid)) {
-                    eventmap[data.pid]({
-                        'timestamp': data.timestamp,
-                        'value': data.value,
-                    });
-                }
-            });
+            setupSocket()
         }
         socket.emit('poll', {
             pids: activepids,
         });
     };
+
+    var responseTicker = function() {
+        if (socket === null) {
+            setupSocket()
+        }
+        socket.emit('tick');
+    };
+
+    setInterval(function() {
+        responseTicker();
+    }, 50);
 
     return {
 
@@ -59,7 +75,7 @@ var obdash = (function () {
             }
 
             // Update the interval and array of active pids, do the first run
-            intervalTimer = setInterval(function() {
+            pollIntervalTimer = setInterval(function() {
                 pollTicker(pids);
             }, 1000 / hz);
             pollTicker(pids);
@@ -83,8 +99,8 @@ var obdash = (function () {
         },
 
         stop: function() {
-            if (intervalTimer !== null) {
-                clearInterval(intervalTimer);
+            if (pollIntervalTimer !== null) {
+                clearInterval(pollIntervalTimer);
             }
             socket = null;
         },
