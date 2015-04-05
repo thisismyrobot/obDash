@@ -1,5 +1,5 @@
-import elm327wifi
-import extras
+import obdash.elm327wifi
+import obdash.extras
 
 
 # Maps MODE and PID to a callable
@@ -15,16 +15,16 @@ CALLABLES = {
         # Block 4 supported PIDs
         0x60: lambda: (0x44, 0x46),
         # Current RPM
-        0x0C: lambda: elm327wifi.get('010C'),
+        0x0C: lambda: obdash.elm327wifi.get('010C'),
         # Current KPH
-        0x0D: lambda: elm327wifi.get('010D'),
+        0x0D: lambda: obdash.elm327wifi.get('010D'),
         # Current Intake Air Temperature
-        0x0F: lambda: elm327wifi.get('010F'),
+        0x0F: lambda: obdash.elm327wifi.get('010F'),
     },
 }
 
 # Add the extra non-OBD2 mode 0xFF PIDs
-CALLABLES.update(extras.CALLABLES)
+CALLABLES.update(obdash.extras.CALLABLES)
 
 # Processors for anything that cannot just be returned as-is.
 PROCESSORS = {

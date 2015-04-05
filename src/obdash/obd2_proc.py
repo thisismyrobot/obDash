@@ -1,7 +1,7 @@
 """ The manager for a process to do OBD2 interfacing.
 """
 import multiprocessing
-import obd2
+import obdash.obd2
 import time
 
 
@@ -24,8 +24,8 @@ class Obd2Process(object):
             mode, pid = pipe.recv()
 
             try:
-                value = obd2.value(mode, pid)
-            except obd2.NoValueException:
+                value = obdash.obd2.value(mode, pid)
+            except obdash.obd2.NoValueException:
                 continue
 
             pipe.send((mode, pid, value, time.time()))

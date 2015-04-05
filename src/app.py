@@ -1,18 +1,18 @@
 """ obDash web app.
 """
-import config
+import obdash.config
 import flask.ext.socketio
 import flask
 import glob
-import obd2_proc
+import obdash.obd2_proc
 import os
 import time
-import tools
+import obdash.tools
 
 
 # Create the app
 app = flask.Flask('obDash')
-app.debug = config.FLASK_DEBUG
+app.debug = obdash.config.FLASK_DEBUG
 app.root_path = os.path.abspath(os.path.dirname(__file__))
 
 # Prep for and create the socket app
@@ -27,7 +27,7 @@ EPOCH_OFFSET = None
 obd2 = None
 
 # Grab a list of app names
-APPS = filter(tools.valid_app_name,
+APPS = filter(obdash.tools.valid_app_name,
               map(os.path.basename,
                   map(os.path.dirname,
                       glob.glob(os.path.join(app.root_path,
@@ -78,10 +78,10 @@ def index():
 def appresources(appname, filename):
     """ Return app-specific resources.
     """
-    if not tools.valid_app_name(appname):
+    if not obdash.tools.valid_app_name(appname):
         flask.abort(418)  # "I'm a teapot" error...
 
-    if not tools.safepath(filename):
+    if not obdash.tools.safepath(filename):
         flask.abort(418)  # "I'm a teapot" error...
 
     if filename == 'index.html':
@@ -99,7 +99,7 @@ def loadapp(name):
     """
     # Apps must be lower case strings alphanumeric + underscore strings, 1-10
     # characters long.
-    if not tools.valid_app_name(name):
+    if not obdash.tools.valid_app_name(name):
         return 'invalid app name'
 
     # Grab the template
@@ -162,7 +162,7 @@ def settime():
 if __name__ == "__main__":
     # Launch the IO-limited stuff (the elm327-interface) in a separate
     # process.
-    obd2 = obd2_proc.Obd2Process()
+    obd2 = obdash.obd2_proc.Obd2Process()
     obd2.start_process()
 
     # Launch the flask socketio-aware app
