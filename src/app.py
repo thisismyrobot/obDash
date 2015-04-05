@@ -162,7 +162,7 @@ def settime():
 if __name__ == "__main__":
     # Launch the IO-limited stuff (the elm327-interface) in a separate
     # process.
-    obd2 = obdash.obd2_proc.Obd2Process()
+    obd2 = obdash.obd2_proc.Obd2Process(obdash.config.OBD2INTERFACE)
     obd2.start_process()
 
     # Launch the flask socketio-aware app

@@ -1,5 +1,6 @@
 """ The manager for a process to do OBD2 interfacing.
 """
+import importlib
 import multiprocessing
 import obdash.obd2
 import time
@@ -8,23 +9,31 @@ import time
 class Obd2Process(object):
     """ This is the process that does the hardware stuff.
     """
-    def __init__(self):
+    def __init__(self, ifacename):
+        self._ifacename = ifacename
         self._parent, child = multiprocessing.Pipe()
         self._proc = multiprocessing.Process(
             target=self.runloop, args=(child,)
         )
+
+    @property
+    def obd2interface(self):
+        # We import here as we can't pass the module to the process.
+        mod = importlib.import_module(self._ifacename)
+        return mod
 
     def runloop(self, pipe):
         """ The process that handles IO directly.
 
             Pushes objects back into a pipe, with a timestamp.
         """
+        iface = self.obd2interface
         while True:
             # Blocking wait on data from the parent
             mode, pid = pipe.recv()
 
             try:
-                value = obdash.obd2.value(mode, pid)
+                value = obdash.obd2.value(iface, mode, pid)
             except obdash.obd2.NoValueException:
                 continue
 

@@ -1,4 +1,3 @@
-import obdash.elm327wifi
 import obdash.extras
 
 
@@ -7,19 +6,19 @@ CALLABLES = {
     # Realtime
     0x01: {
         # Block 1 supported PIDs
-        0x00: lambda: (0x02, 0x03, 0x05, 0x09),
+        0x00: lambda iface: (0x02, 0x03, 0x05, 0x09),
         # Block 2 supported PIDs
-        0x20: lambda: (0x22, 0x23, 0x25),
+        0x20: lambda iface: (0x22, 0x23, 0x25),
         # Block 3 supported PIDs
-        0x40: lambda: (0x31,),
+        0x40: lambda iface: (0x31,),
         # Block 4 supported PIDs
-        0x60: lambda: (0x44, 0x46),
+        0x60: lambda iface: (0x44, 0x46),
         # Current RPM
-        0x0C: lambda: obdash.elm327wifi.get('010C'),
+        0x0C: lambda iface: iface.get('010C'),
         # Current KPH
-        0x0D: lambda: obdash.elm327wifi.get('010D'),
+        0x0D: lambda iface: iface.get('010D'),
         # Current Intake Air Temperature
-        0x0F: lambda: obdash.elm327wifi.get('010F'),
+        0x0F: lambda iface: iface.get('010F'),
     },
 }
 
@@ -41,14 +40,14 @@ class NoValueException(Exception):
     pass
 
 
-def value(mode, pid):
+def value(iface, mode, pid):
     """ Return the value of a mode+pid combination.
 
         It is up to the lambda in the MAP to do any IO.
     """
     try:
         func = CALLABLES[mode][pid]
-        data = func()
+        data = func(iface)
         try:
             data = PROCESSORS[mode][pid](*data)
             return data
