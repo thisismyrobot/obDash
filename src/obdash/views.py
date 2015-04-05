@@ -1,44 +1,16 @@
-""" obDash web app.
+""" Flask application views.
 """
-import obdash.config
-import flask.ext.socketio
+from obdash import app, obd2_api, socketapp
+
 import flask
 import glob
-import logging
-import obdash.obd2_proc
 import obdash.tools
 import os
 import time
 
-# Logging
-#logging.getLogger('').addHandler(logging.StreamHandler())
-logging.basicConfig(
-    level=logging.ERROR,
-    format='%(levelname)s - [%(asctime)s] - %(name)s: %(message)s',
-)
-
-# Create the app
-app = flask.Flask('obDash')
-app.debug = obdash.config.FLASK_DEBUG
-app.root_path = os.path.abspath(os.path.dirname(__file__))
-
-# Prep for and create the socket app
-app.config['SECRET_KEY'] = 'secret!'  # TODO: don't...
-socketapp = flask.ext.socketio.SocketIO(app)
 
 # The epoc offset from a client device. None indicates is has not been set.
 EPOCH_OFFSET = None
-
-# The hardware-bound stuff will be in a different process, using shared
-# memory to buffer PID values.
-obd2 = None
-
-# Grab a list of app names
-APPS = filter(obdash.tools.valid_app_name,
-              map(os.path.basename,
-                  map(os.path.dirname,
-                      glob.glob(os.path.join(app.root_path,
-                                             'apps', '*', 'index.html')))))
 
 
 @socketapp.on('poll')
@@ -46,7 +18,7 @@ def handle_poll(message):
     """ Handles PID polls.
     """
     for mode, pid in message['pids']:
-        obd2.request(mode, pid)
+        obd2_api.request(mode, pid)
 
 
 @socketapp.on('tick')
@@ -58,7 +30,7 @@ def handle_tick():
     """
     while True:
         try:
-            mode, pid, value, when = obd2.response()
+            mode, pid, value, when = obd2_api.response()
         except TypeError:
             # If there are no responses yet/left.
             break
@@ -78,7 +50,13 @@ def handle_tick():
 def index():
     """ The main page
     """
-    return flask.render_template('index.html', apps=APPS)
+    apps = filter(obdash.tools.valid_app_name,
+                  map(os.path.basename,
+                      map(os.path.dirname,
+                          glob.glob(os.path.join(app.root_path,
+                                                 'apps', '*', 'index.html')))))
+
+    return flask.render_template('index.html', apps=apps)
 
 
 @app.route("/app/<appname>/<filename>")
@@ -164,13 +142,3 @@ def settime():
     EPOCH_OFFSET = float(epoch) - time.time()
 
     return ''
-
-
-if __name__ == "__main__":
-    # Launch the IO-limited stuff (the elm327-interface) in a separate
-    # process.
-    obd2 = obdash.obd2_proc.Obd2Process(obdash.config.OBD2INTERFACE)
-    obd2.start_process()
-
-    # Launch the flask socketio-aware app
-    socketapp.run(app, host='0.0.0.0')
