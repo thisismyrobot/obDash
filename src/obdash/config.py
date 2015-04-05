@@ -1,5 +1,5 @@
 # Debug mode or not for the flask app.
-FLASK_DEBUG = True
+FLASK_DEBUG = False
 
 # The tty with the ELM327.
 OBDTTY = '/dev/ttyUSB0'  # For testing, should be something like /dev/rfcomm0

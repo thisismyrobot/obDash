@@ -4,11 +4,18 @@ import obdash.config
 import flask.ext.socketio
 import flask
 import glob
+import logging
 import obdash.obd2_proc
+import obdash.tools
 import os
 import time
-import obdash.tools
 
+# Logging
+#logging.getLogger('').addHandler(logging.StreamHandler())
+logging.basicConfig(
+    level=logging.ERROR,
+    format='%(levelname)s - [%(asctime)s] - %(name)s: %(message)s',
+)
 
 # Create the app
 app = flask.Flask('obDash')

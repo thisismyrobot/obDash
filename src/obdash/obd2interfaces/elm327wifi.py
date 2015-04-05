@@ -1,7 +1,11 @@
+import logging
 import re
 import socket
 import threading
 import time
+
+
+logger = logging.getLogger('obdash.obd2interfaces.elm327wifi')
 
 
 def clean_ascii(string):
@@ -85,7 +89,8 @@ class __Reader(object):
 
             return tokens
 
-        except Exception as e:
+        except Exception as ex:
+            logger.error('ELM327 Wifi transact failure: {}'.format(ex))
             return []
 
 
@@ -98,7 +103,8 @@ def keep_alive():
         try:
             reader = __Reader()
             get = reader.transact
-        except:
+        except Exception as ex:
+            logger.error('ELM327 Wifi thread failure: {}'.format(ex))
             time.sleep(5)
 
 threading.Thread(target=keep_alive).start()
