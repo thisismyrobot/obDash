@@ -101,7 +101,7 @@ def get(*args, **kwargs):
     try:
         if _reader_instance is None:
             _reader_instance = __Reader()
-        _reader_instance.transact(*args, **kwargs)
+        return _reader_instance.transact(*args, **kwargs)
     except Exception as ex:
         _reader_instance = None
         logger.error('ELM327 Wifi thread failure: {}'.format(ex))
