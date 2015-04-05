@@ -1,7 +1,6 @@
 import logging
 import re
 import socket
-import threading
 import time
 
 
@@ -94,17 +93,15 @@ class __Reader(object):
             return []
 
 
-get = lambda x, y=None: []
+_reader_instance = None
 
 
-def keep_alive():
-    global get
-    while True:
-        try:
-            reader = __Reader()
-            get = reader.transact
-        except Exception as ex:
-            logger.error('ELM327 Wifi thread failure: {}'.format(ex))
-            time.sleep(5)
-
-threading.Thread(target=keep_alive).start()
+def get(*args, **kwargs):
+    global _reader_instance
+    try:
+        if _reader_instance is None:
+            _reader_instance = __Reader()
+        _reader_instance.transact(*args, **kwargs)
+    except Exception as ex:
+        _reader_instance = None
+        logger.error('ELM327 Wifi thread failure: {}'.format(ex))
