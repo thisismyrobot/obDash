@@ -1,4 +1,5 @@
 import logging
+import obdash.obd2_proc
 import re
 import socket
 import time
@@ -21,7 +22,12 @@ class __Reader(object):
         self._setup_ran = False
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.settimeout(0.5)
-        self._socket.connect((ip, port))
+        try:
+            self._socket.connect((ip, port))
+        except Exception as ex:
+            raise obdash.obd2_proc.BlockingOBD2Exception(
+                'socket.connect(...): {}'.format(ex)
+            )
 
     def do_setup(self):
         # Reset
@@ -49,13 +55,8 @@ class __Reader(object):
 
         time.sleep(5)
 
-        print 'Setup done'  #, clean_ascii(sock.recv(1024))
-
     def safe_recv(self):
-        try:
-            return clean_ascii(self._socket.recv(1024))
-        except:
-            return ''
+        return clean_ascii(self._socket.recv(1024))
 
     def transact(self, at_command, str_response=False):
         """ Send a command.
@@ -68,7 +69,6 @@ class __Reader(object):
         at_command = '{}\r'.format(at_command.strip())
 
         try:
-
             if not self._setup_ran:
                 self._setup_ran = True  # Otherwise we go around in circles :)
                 self.do_setup()
@@ -76,20 +76,25 @@ class __Reader(object):
             self.safe_recv()
             self._socket.sendall(at_command)
 
-            # TODO: Tune this - and it's derivable from the number of
-            # tokens.
+            # TODO: Tune this - and it's derivable from the number of tokens.
             response = self.safe_recv()
 
-            # Create tokens from the data, retrieve the actual integer values
-            tokens = [ord(chr(int(t, 16)))
-                      for t
-                      in response.split(" ")[2:]]
-
-            return tokens
-
         except Exception as ex:
-            logger.error('ELM327 Wifi transact failure: {}'.format(ex))
-            return []
+            # Anything that broke above will do so due to timeout issues.
+            raise obdash.obd2_proc.BlockingOBD2Exception(
+                'transact(...): {}'.format(ex)
+            )
+
+        # Create tokens from the data, retrieve the actual integer values,
+        # return
+        try:
+            return [ord(chr(int(t, 16)))
+                    for t
+                    in response.split(" ")[2:]]
+        except Exception as ex:
+            raise Exception('ELM327 Wifi token parse error: {} {}'.format(
+                response, ex
+            ))
 
 
 _reader_instance = None
@@ -101,6 +106,6 @@ def get(*args, **kwargs):
         if _reader_instance is None:
             _reader_instance = __Reader()
         return _reader_instance.transact(*args, **kwargs)
-    except Exception as ex:
+    except Exception:
         _reader_instance = None
-        logger.error('ELM327 Wifi thread failure: {}'.format(ex))
+        raise

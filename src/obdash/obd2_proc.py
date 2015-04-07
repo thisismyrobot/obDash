@@ -7,6 +7,12 @@ import obdash.obd2
 import time
 
 
+class BlockingOBD2Exception(Exception):
+    """ Exception to raise when something goes wrong that took some time.
+    """
+    pass
+
+
 class Obd2Process(object):
     """ This is the process that does the hardware stuff.
 
@@ -39,10 +45,35 @@ class Obd2Process(object):
                     # process and send it back up the pipe.
                     try:
                         value = obdash.obd2.value(iface, mode, pid)
+
+                    # Trap exceptions that result from hardware blocking
+                    # timeouts. These are slow and in the meantime it's
+                    # expected that a number of requests would have entered
+                    # the pipe. We want to ensure the pipe doesn't overflow if
+                    # (for instance) the wifi elm327 isn't plugged in for an
+                    # hour so we trap these errors specifically.
+                    except BlockingOBD2Exception as bex:
+                        logger.error(
+                            'OBD2 value(...) blocking failure: {} {} {}'.format(
+                                mode, pid, bex
+                            )
+                        )
+
+                        # We flush the pipe as it's expected that the
+                        # exception blocked for a while before being raised.
+                        count = 0
+                        while pipe.poll():
+                            pipe.recv()
+                            count += 1
+                        logger.error(
+                            'Flushed {} items from request pipe'.format(count)
+                        )
+                        continue
+
                     except Exception as ex:
                         logger.error(
-                            'OBD2 value(...) call failure for: {} {}'.format(
-                                mode, pid
+                            'OBD2 value(...) failure for: {} {} {}'.format(
+                                mode, pid, ex
                             )
                         )
                         continue
