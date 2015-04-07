@@ -57,7 +57,6 @@ var obdash = (function () {
 
             // Associate the response handler with the socket
             socket.on('value', function(responseData) {
-                console.log(responseData);
                 if (eventmap.hasOwnProperty(responseData.pid)) {
                     eventmap[responseData.pid]({
                         'timestamp': responseData.timestamp,
