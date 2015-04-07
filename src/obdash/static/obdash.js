@@ -4,8 +4,9 @@ var obdash = (function () {
 
     var eventmap = {};
     var socket = null;
+    var beepObj = null;
 
-    // Register PIDs to get data for from the server.
+    // Poll server with a request to get the value for some PIDs.
     var doPoll = function(pids) {
         socket.emit('poll', {
             pids: pids,
@@ -21,7 +22,7 @@ var obdash = (function () {
 
         // Make a nice beep sound :)
         beep: function() {
-            document.getElementById('audio_beep').play();
+            beepObj.play();
         },
 
         // Register a function to call on the receipt of data for a PID
@@ -50,6 +51,15 @@ var obdash = (function () {
 
         // Start the timed processes etc.
         init: function() {
+            // Grab the beep audio
+            beepObj = $('<audio>').append(
+                $('<source>', {
+                    'type': 'audio/mp3',
+                    'src': '/static/beep.mp3',
+                })
+            )[0];
+            $('body').append(beepObj);
+
             // Create the socket
             socket = io.connect(
                 'http://' + document.domain + ':' + location.port

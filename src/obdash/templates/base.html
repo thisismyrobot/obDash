@@ -26,10 +26,6 @@
         {% endblock %}
     </head>
     <body>
-        <audio id="audio_beep">
-            <source type="audio/mp3"
-                src="{{ url_for('static', filename='beep.mp3') }}" />
-        </audio>
         <div class="header">
             <a href="/">obDash</a>{% block app_title %}{% endblock %}
         </div>
