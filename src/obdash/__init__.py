@@ -23,7 +23,9 @@ app.config['SECRET_KEY'] = 'secret!'  # TODO: don't...
 socketapp = flask.ext.socketio.SocketIO(app)
 
 # The obd2 interface process
-obd2_api = obdash.obd2_proc.Obd2Process(obdash.config.OBD2INTERFACE)
+obd2_process_manager = obdash.obd2_proc.Obd2Process(
+    obdash.config.OBD2INTERFACE
+)
 
 # The views need to be configured last
 import obdash.views

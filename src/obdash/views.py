@@ -1,6 +1,6 @@
 """ Flask application views.
 """
-from obdash import app, obd2_api, socketapp
+from obdash import app, obd2_process_manager, socketapp
 
 import flask
 import glob
@@ -18,7 +18,7 @@ def handle_poll(message):
     """ Handles PID polls.
     """
     for mode, pid in message['pids']:
-        obd2_api.request(mode, pid)
+        obd2_process_manager.request(mode, pid)
 
 
 @socketapp.on('tick')
@@ -30,7 +30,7 @@ def handle_tick():
     """
     while True:
         try:
-            mode, pid, value, when = obd2_api.response()
+            mode, pid, value, when = obd2_process_manager.response()
         except TypeError:
             # If there are no responses yet/left.
             break
