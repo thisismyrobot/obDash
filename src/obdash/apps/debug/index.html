@@ -75,12 +75,15 @@
             obdash.on(0xFF, 0x00, function(data) {
                 $('#db_extra_temp').text(data.value);
             });
+            obdash.on(0xFF, 0xFE, function(data) {
+                $('#db_extra_rand').text(data.value);
+            });
             obdash.on(0xFF, 0xFF, function(data) {
                 $('#db_extra_at_ati').text(data.value);
             });
 
-            // Snapshot data
-            obdash.oneshot([
+            // One-off snapshot data
+            obdash.request([
                 [0x01, 0x00], // The list of PIDs supported in block 1
                 [0x01, 0x20], // The list of PIDs supported in block 2
                 [0x01, 0x40], // The list of PIDs supported in block 3
@@ -89,19 +92,22 @@
                 [0xFF, 0xFF], // OBD2 version number
             ]);
 
-            // And set up a polling for the current RPM
-            obdash.polled([
-                [0x01, 0x0C], // RPM
-            ], 5); // 5 times/second
-
-            // Custom polling (every 30 secs) for the intake air temp
+            // Set up a polling for the current RPM
             setInterval(function() {
-                obdash.oneshot([[0x01, 0x0F]]);
+                obdash.request([[0x01, 0x0C]]);
+            }, 200);
+
+            // Set up a polling for the the intake air temp
+            setInterval(function() {
+                obdash.request([[0x01, 0x0F]]);
             }, 30000);
 
-            /*
-                Set up extras
-            */
+            // Set up a polling for random info
+            setInterval(function() {
+                obdash.request([[0xFF, 0xFE]]);
+            }, 1000);
+
+            // Set up extras
             $('#db_extra_beep').append(
                 $('<button>Beep</button>').click(function() {
                     obdash.beep();
@@ -209,6 +215,12 @@
             Raspberry Pi temperature
         </td>
         <td id="db_extra_temp"></td>
+    </tr>
+    <tr>
+        <td>
+            Random bytes
+        </td>
+        <td id="db_extra_rand" style="font-family:monospace"></td>
     </tr>
 </table>
 

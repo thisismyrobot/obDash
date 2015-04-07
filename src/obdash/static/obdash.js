@@ -1,54 +1,36 @@
+// Module pattern
+//    http://addyosmani.com/resources/essentialjsdesignpatterns/book/#modulepatternjavascript
 var obdash = (function () {
 
-    var pollIntervalTimer = null;
     var eventmap = {};
     var socket = null;
 
-    var setupSocket = function() {
-        socket = io.connect(
-            'http://' + document.domain + ':' + location.port);
-        socket.on('value', function(data) {
-            console.log(data);
-            if (eventmap.hasOwnProperty(data.pid)) {
-                eventmap[data.pid]({
-                    'timestamp': data.timestamp,
-                    'value': data.value,
-                });
-            }
-        });
-    }
-
-    var pollTicker = function(activepids) {
-        if (socket === null) {
-            setupSocket()
-        }
+    // Register PIDs to get data for from the server.
+    var doPoll = function(pids) {
         socket.emit('poll', {
-            pids: activepids,
+            pids: pids,
         });
     };
 
+    // Trigger the server to send back any queued data.
     var responseTicker = function() {
-        if (socket === null) {
-            setupSocket()
-        }
         socket.emit('tick');
     };
 
-    setInterval(function() {
-        responseTicker();
-    }, 50);
-
     return {
 
+        // Make a nice beep sound :)
         beep: function() {
             document.getElementById('audio_beep').play();
         },
 
+        // Register a function to call on the receipt of data for a PID
         on: function(mode, pid, func) {
             eventmap[[mode, pid]] = func;
         },
 
-        oneshot: function(pids) {
+        // Submit a request for some data for some PIDs
+        request: function(pids) {
             if (pids === undefined) {
                 throw 'start: Array of PIDs is required';
             }
@@ -56,53 +38,41 @@ var obdash = (function () {
             if (!$.isArray(pids)) {
                 throw 'start: First argument (PIDs) must be an array';
             }
-            pollTicker(pids);
+            doPoll(pids);
         },
 
-        polled: function(pids, hz) {
-            obdash.stop();
-
-            if (pids === undefined || hz === undefined) {
-                throw 'start: Array of PIDs and a polling Hz are required';
-            }
-
-            if (!$.isArray(pids)) {
-                throw 'start: First argument (PIDs) must be an array';
-            }
-
-            if (typeof(hz) !== 'number' || hz <= 0 || hz > 20) {
-                throw 'start: Second argument (Hz) must be an number 0 < Hz <= 20';
-            }
-
-            // Update the interval and array of active pids, do the first run
-            pollIntervalTimer = setInterval(function() {
-                pollTicker(pids);
-            }, 1000 / hz);
-            pollTicker(pids);
-
-        },
-
-        refresh: function(delay) {
-            if (delay === undefined) {
-                delay = 0;
-            }
-            setTimeout(function() {
-                location.reload(true);
-            }, delay);
-        },
-
-        // Sets the server time offset from the client device
+        // Submit the current time to the server to update the internal clock
         setTime: function () {
             $.post('/time', {
                 'epoch': new Date().getTime() / 1000,
             });
         },
 
-        stop: function() {
-            if (pollIntervalTimer !== null) {
-                clearInterval(pollIntervalTimer);
-            }
-            socket = null;
+        // Start the timed processes etc.
+        init: function() {
+            // Create the socket
+            socket = io.connect(
+                'http://' + document.domain + ':' + location.port
+            );
+
+            // Associate the response handler with the socket
+            socket.on('value', function(responseData) {
+                console.log(responseData);
+                if (eventmap.hasOwnProperty(responseData.pid)) {
+                    eventmap[responseData.pid]({
+                        'timestamp': responseData.timestamp,
+                        'value': responseData.value,
+                    });
+                }
+            });
+
+            // Start the response gathering polling from client to server. We
+            // only "gather" 10 times a second - this doesn't matter as the
+            // data is timestamped at the OBD end to a far higher resolution.
+            setInterval(function() {
+                responseTicker();
+            }, 100);
+
         },
 
     };
@@ -110,4 +80,5 @@ var obdash = (function () {
 
 $(document).ready(function(){
     obdash.setTime();
+    obdash.init();
 });
