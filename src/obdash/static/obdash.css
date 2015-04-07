@@ -6,7 +6,7 @@ body {
 }
 
 .header {
-    padding:5px;
+    padding:5px 0px 5px 0px;
     font-size: 28px;
 }
 
@@ -18,7 +18,7 @@ body {
 
 .app {
     float: left;
-    margin: 10px;
+    margin: 10px 20px 10px 0px;
 }
 
 .app a {
@@ -32,14 +32,15 @@ body {
     -webkit-border-radius: 8px;
     -moz-border-radius: 8px;
     border-radius: 8px;
-    border: 1px solid #333333;
+    border: 2px solid #333333;
 }
 
 .app a .title {
     text-align: center;
     display: block;
-    width: 96px;
-    margin-top: 3px;
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: lighter;
 }
 
 .dial.big {
