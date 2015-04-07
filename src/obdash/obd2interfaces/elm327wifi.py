@@ -80,11 +80,10 @@ class __Reader(object):
             # tokens.
             response = self.safe_recv()
 
-            # Parse out the actual response data
-            data = response.split(" ")[2:]
-
-            # Create tokens from the data
-            tokens = [ord(chr(int(t, 16))) for t in data]
+            # Create tokens from the data, retrieve the actual integer values
+            tokens = [ord(chr(int(t, 16)))
+                      for t
+                      in response.split(" ")[2:]]
 
             return tokens
 

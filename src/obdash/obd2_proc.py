@@ -15,20 +15,13 @@ class Obd2Process(object):
         on that module with AT commands as strings.
     """
     def __init__(self, ifacename):
-        self._ifacename = ifacename
         self._parent, child = multiprocessing.Pipe()
         self._proc = multiprocessing.Process(
-            target=self.runloop, args=(child,)
+            target=self.runloop, args=(child, ifacename)
         )
 
-    @property
-    def obd2interface(self):
-        # We import here as we can't pass the module to the process.
-        mod = importlib.import_module(self._ifacename)
-        return mod
-
-    def runloop(self, pipe):
-        """ The process that handles IO directly.
+    def runloop(self, pipe, ifacename):
+        """ The process that handles IO directly and runs in a sub-process.
 
             Pushes objects back into a pipe, with a timestamp.
         """
@@ -37,7 +30,7 @@ class Obd2Process(object):
         # The world's crappiest in-process "watchdog"...
         while True:
             try:
-                iface = self.obd2interface
+                iface = importlib.import_module(ifacename)
                 while True:
                     # Blocking wait on data from the parent
                     mode, pid = pipe.recv()
