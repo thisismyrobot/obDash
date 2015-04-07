@@ -41,33 +41,25 @@ PROCESSORS = {
 }
 
 
-class NoValueException(Exception):
-    pass
-
-
 def value(iface, mode, pid):
     """ Return the value of a mode+pid combination.
 
         It is up to the lambda in the CALLABLES dict to do any IO.
     """
+    # Retrieve a function to get the values for a mode + pid combination.
+    value_getter_func = CALLABLES[mode][pid]
+
+    # Attempt to get the values using that function and the OBD2 interface
+    # module.
+    values = value_getter_func(iface)
+
     try:
-        # Retrieve a function to get the values for a mode + pid combination.
-        value_getter_func = CALLABLES[mode][pid]
+        # Attempt to process the values and return the processed result
+        return PROCESSORS[mode][pid](*values)
 
-        # Attempt to get the values using that function and the OBD2 interface
-        # module.
-        values = value_getter_func(iface)
+    except KeyError:
+        # Not all mode + pid combinations need a processor, so this
+        # exception is not a problem.
+        pass
 
-        try:
-            # Attempt to process the values and return the processed result
-            return PROCESSORS[mode][pid](*values)
-
-        except KeyError:
-            # Not all mode + pid combinations need a processor, so this
-            # exception is not a problem.
-            pass
-
-        return values
-
-    except Exception as ex:
-        raise NoValueException(ex.message)
+    return values

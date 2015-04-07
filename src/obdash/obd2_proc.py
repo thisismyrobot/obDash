@@ -32,18 +32,25 @@ class Obd2Process(object):
             try:
                 iface = importlib.import_module(ifacename)
                 while True:
-                    # Blocking wait on data from the parent
+                    # Blocking wait on data from the parent (web) process.
                     mode, pid = pipe.recv()
 
+                    # Attempt to retrieve the value requested by the parent
+                    # process and send it back up the pipe.
                     try:
                         value = obdash.obd2.value(iface, mode, pid)
-                    except obdash.obd2.NoValueException:
+                    except Exception as ex:
+                        logger.error(
+                            'OBD2 value(...) call failure for: {} {}'.format(
+                                mode, pid
+                            )
+                        )
                         continue
 
                     pipe.send((mode, pid, value, time.time()))
             except Exception as ex:
                 logger.error('OBD2 process failure for interface {}: {}'.format(
-                    self._ifacename, ex)
+                    ifacename, ex)
                 )
                 time.sleep(5)
 
